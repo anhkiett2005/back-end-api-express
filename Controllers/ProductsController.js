@@ -7,11 +7,6 @@ class TourController {
     async getAllProducts(req,res) {
         try {
             const tour = await Tours.find();
-            if(!tour) {
-                return res.status(404).json({
-                    message: 'Tour not found'
-                })
-            }
 
             res.status(200).json({
                 success: true,
@@ -20,7 +15,7 @@ class TourController {
                 statusCode: 200
             })
         } catch (error) {
-            res.status(500).json({
+            res.status(400).json({
                 message: error.message
             })
         }
