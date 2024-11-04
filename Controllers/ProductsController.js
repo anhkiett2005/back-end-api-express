@@ -85,6 +85,11 @@ class TourController {
         try {
             const {slug} = req.params;
             const tour = await Tours.findOneAndUpdate({slug:slug},req.body);
+            if(!tour) {
+                return res.status(404).json({
+                    message: 'Tour update failed'
+                })
+            }
             res.status(200).json({
                 success: true,
                 message: 'Updated tour successfully',
@@ -101,6 +106,11 @@ class TourController {
         try {
             const {slug} = req.params;
             const tour = await Tours.findOneAndDelete({slug:slug});
+            if(!tour) {
+                return res.status(404).json({
+                    message: 'Tour deleted failed'
+                })
+            }
             res.status(200).json({
                 message: 'Deleted tour successfully',
             })
