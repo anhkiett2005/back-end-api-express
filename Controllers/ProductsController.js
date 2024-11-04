@@ -6,15 +6,21 @@ const validator = require('validator');
 class TourController {
     async getAllProducts(req,res) {
         try {
-            const tours = await Tours.find()
+            const tour = await Tours.find();
+            if(!tour) {
+                return res.status(404).json({
+                    message: 'Tour not found'
+                })
+            }
+
             res.status(200).json({
                 success: true,
                 message: 'Get all tours successfully',
-                data: tours,
+                data: tour,
                 statusCode: 200
             })
         } catch (error) {
-            res.status(400).json({
+            res.status(500).json({
                 message: error.message
             })
         }
@@ -23,6 +29,12 @@ class TourController {
         try {
             const {slug} = req.params;
             const tour = await Tours.findOne({slug:slug})
+            if(!tour) {
+                return res.status(404).json({
+                    message: 'Tour not found'
+                })
+            }
+
             res.status(200).json({
                 success: true,
                 message: 'Get tour successfully',
@@ -30,7 +42,7 @@ class TourController {
                 statusCode: 200
             })
         } catch (error) {
-            res.status(400).json({
+            res.status(500).json({
                 message: error.message
             })
         }
@@ -41,6 +53,11 @@ class TourController {
             let query = req.query.t
             query = convertString(validator.escape(query));
             const tour = await Tours.findOne({name:query});
+            if(!tour) {
+                return res.status(404).json({
+                    message: 'Tour not found'
+                })
+            }
             res.status(200).json({
                 success: true,
                 message: 'Get tour successfully',
@@ -48,7 +65,7 @@ class TourController {
                 statusCode: 200
             })
         } catch (error) {
-            res.status(400).json({
+            res.status(500).json({
                 message: error.message
             })
         }
