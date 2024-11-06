@@ -29,7 +29,7 @@ app.use(morgan('common'));
 
 // Routes
 app.use('/api',useRouter);
-// test
+
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
