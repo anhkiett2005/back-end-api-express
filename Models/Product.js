@@ -27,8 +27,11 @@ const productSchema = new Schema(
         },
         type: {
             type: String,
-            required: true,
-            enum: ['Tour', 'Sự kiện & Show diễn']
+            required: [true,'Trường type là bắt buộc!'],
+            enum: {
+                values: ['Tour', 'Sự kiện & Show diễn'],
+                message: 'Giá trị {VALUE} không hợp lệ cho type!'
+            }
         },
         category: {
             type: String,
@@ -62,7 +65,7 @@ const productSchema = new Schema(
         duration: {
             type: String,
             required: function() {
-                return this.type === 'Tour';
+                return this.type === 'Tour' || this.type === 'Sự kiện & Show diễn';
             },
             validate: {
                 validator: function(value) {
