@@ -7,7 +7,6 @@ function convertString(str) {
 
       if(regex.test(str)) {
         words = words.replace(/[-_]/g, ' ');
-         
         
         // Viết hoa chữ cái đầu của mỗi từ
         return words.replace(/\b\w/g, char => char.toUpperCase());

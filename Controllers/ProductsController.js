@@ -46,8 +46,7 @@ class TourController {
     async getOneProductQuery(req,res) {
         try {
             let query = req.query.t
-            query = convertString(validator.whitelist(query,'a-zA-Z0-9'));
-            const tour = await Tours.findOne({name:query});
+            const tour = await Tours.find({location:query});
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour not found'
