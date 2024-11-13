@@ -19,7 +19,7 @@ const productSchema = new Schema(
         },
         departureDate: {
             type: String,
-            required: true
+            required: false
         },
         location: {
             type: String,
@@ -32,8 +32,21 @@ const productSchema = new Schema(
         },
         category: {
             type: String,
-            required: true,
-            enum:['Hot','Tour gia đình','Tour trong nước','Tour ngoài nước','Tour phiêu lưu và khám phá thiên nhiên']
+            required: function () {
+                return this.type === 'Tour' || this.type === 'Sự kiện & Show diễn';
+            },
+            enum:['Hot','Tour gia đình','Tour trong nước','Tour ngoài nước','Tour phiêu lưu và khám phá thiên nhiên'],
+            validate: {
+                validator: function(value) {
+                    if(this.type === 'Tour') {
+                        return ['Hot','Tour gia đình','Tour trong nước','Tour ngoài nước','Tour phiêu lưu và khám phá thiên nhiên'].includes(value)
+                    }else if(this.type === 'Sự kiện & Show diễn') {
+                        return ['Sự kiện âm nhạc','Triển Lãm','Kịch'].includes(value)
+                    }
+                    return true;
+                },
+                message: props => `Giá trị ${props.value} không hợp lệ cho category khi type là ${props.instance.type}!`
+            },
         },
         slug: {
             type: String,
