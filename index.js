@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const morgan = require('morgan');
 const port = 3000;
 
@@ -20,6 +21,9 @@ const connectDb = async () => {
 
 connectDb();
 
+
+// Sử dụng CORS Middleware
+app.use(cors()); // Cho phép tất cả các nguồn truy cập vào API
 
 // Middleware
 app.use(express.json());
