@@ -9,6 +9,14 @@ const productSchema = new Schema(
             type: String,
             required: true
         },
+        type: {
+            type: String,
+            required: [true,'Trường type là bắt buộc!'],
+            enum: {
+                values: ['Tour', 'Sự kiện & Show diễn'],
+                message: 'Giá trị {VALUE} không hợp lệ cho type!'
+            }
+        },
         image: {
             type: String,
             required: true
@@ -21,17 +29,27 @@ const productSchema = new Schema(
             type: String,
             required: false
         },
+        endDate: {
+            type: String,
+            required: function() {
+                return this.type === 'Tour';
+            },
+            validate: {
+                validator: function(value) {
+                    // Ensure endDate is later than departureDate (if both exist)
+                    if (this.departureDate && value) {
+                        const startDate = new Date(this.departureDate);
+                        const endDate = new Date(value);
+                        return endDate > startDate;
+                    }
+                    return true; // Skip validation if departureDate or endDate is missing
+                },
+                message: props => `Ngày kết thúc (${props.value}) phải lớn hơn ngày khởi hành (${this.departureDate})!`
+            }
+        },
         location: {
             type: String,
             required: true
-        },
-        type: {
-            type: String,
-            required: [true,'Trường type là bắt buộc!'],
-            enum: {
-                values: ['Tour', 'Sự kiện & Show diễn'],
-                message: 'Giá trị {VALUE} không hợp lệ cho type!'
-            }
         },
         category: {
             type: String,
