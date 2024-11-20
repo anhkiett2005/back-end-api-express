@@ -34,6 +34,12 @@ app.use(morgan('common'));
 // Routes
 app.use('/api',useRouter);
 
+// Middleware để xử lý tất cả các route không khớp (route không tồn tại)
+app.use((req, res, next) => {
+  res.status(404).json({
+    message: 'Page Not Found',
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

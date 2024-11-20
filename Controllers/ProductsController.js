@@ -1,5 +1,5 @@
 const Tours = require('../Models/Product');
-const convertString = require('../helpers/CovertFunc');
+const utils = require('../utils/utils');
 const axios = require('axios');
 const validator = require('validator');
 
@@ -23,7 +23,8 @@ class TourController {
     async getOneProduct(req,res) {
         try {
             const {slug} = req.params;
-            const tour = await Tours.findOne({slug:slug})
+            const normalizedSlug = utils.toSlug(slug);
+            const tour = await Tours.findOne({slug:normalizedSlug});
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour not found'
@@ -37,6 +38,7 @@ class TourController {
                 statusCode: 200
             })
         } catch (error) {
+            console.error(error);
             res.status(500).json({
                 message: error.message
             })
@@ -45,7 +47,7 @@ class TourController {
 
     async getOneProductQuery(req,res) {
         try {
-            let query = convertString(req.query.t)
+            let query = utils.convertString(req.query.t);
             const tour = await Tours.findOne({name:query});
             if(!tour) {
                 return res.status(404).json({
