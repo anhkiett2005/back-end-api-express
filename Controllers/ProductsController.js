@@ -47,8 +47,9 @@ class TourController {
 
     async getOneProductQuery(req,res) {
         try {
-            let query = utils.convertString(req.query.t);
-            const tour = await Tours.findOne({name:query});
+            let query = req.query.t
+            const covertQuery = utils.convertString(query)
+            const tour = await Tours.findOne({name:covertQuery});
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour not found'
