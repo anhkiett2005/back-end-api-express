@@ -106,7 +106,8 @@ class TourController {
     async deleteProduct(req,res) {
         try {
             const {slug} = req.params;
-            const tour = await Tours.findOne({slug:slug});
+            const normalizedSlug = utils.toSlug(slug);
+            const tour = await Tours.findOne({slug:normalizedSlug});
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour not found or already deleted'
