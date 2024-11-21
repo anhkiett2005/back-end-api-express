@@ -106,12 +106,14 @@ class TourController {
     async deleteProduct(req,res) {
         try {
             const {slug} = req.params;
-            const tour = await Tours.findOneAndDelete({slug:slug});
+            const tour = await Tours.findOne({slug:slug});
             if(!tour) {
                 return res.status(404).json({
-                    message: 'Tour deleted failed'
+                    message: 'Tour not found or already deleted'
                 })
             }
+            // Nếu tồn tại, xóa tour
+            await Tours.deleteOne({slug:slug});
             res.status(200).json({
                 message: 'Deleted tour successfully',
             })
