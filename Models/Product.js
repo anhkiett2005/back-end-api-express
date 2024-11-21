@@ -44,7 +44,7 @@ const productSchema = new Schema(
                     }
                     return true; // Skip validation if departureDate or endDate is missing
                 },
-                message: props => `Ngày kết thúc (${props.value}) phải lớn hơn ngày khởi hành (${this.departureDate})!`
+                message: props => `Ngày kết thúc (${props.value}) phải lớn hơn ngày khởi hành!`
             }
         },
         location: {
