@@ -85,7 +85,8 @@ class TourController {
     async putProduct(req,res) {
         try {
             const {slug} = req.params;
-            const tour = await Tours.findOneAndUpdate({slug:slug},req.body);
+            const normalizedSlug = utils.toSlug(slug);
+            const tour = await Tours.findOneAndUpdate({slug:normalizedSlug},req.body);
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour update failed'
