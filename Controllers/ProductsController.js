@@ -68,7 +68,7 @@ class TourController {
         }
     }
 
-    async getAllProductsQuery(req,res) {
+    async getAllProductsPaginationsQuery(req,res) {
         try {
             const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
             const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 6; // nếu không truyền vào mặc định là 6 tour
