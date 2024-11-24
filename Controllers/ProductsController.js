@@ -68,6 +68,39 @@ class TourController {
         }
     }
 
+    async getAllProductsQuery(req,res) {
+        try {
+            const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
+            const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 6; // nếu không truyền vào mặc định là 6 tour
+            const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
+            
+            // Lấy danh sách tour
+            const tours = await Tours.find()
+            .skip(skip) // Bỏ qua số tài liệu theo phân trang
+            .limit(limit); // Giới hạn số tài liệu trả về
+            
+            // tổng số tài liệu 
+            const totalTours = await Tours.countDocuments();
+
+            res.status(200).json({
+                success: true,
+                message: 'Get tours with pagination successfully',
+                data: tours,
+                pagination : {
+                    currentPage: page,
+                    totalPages: Math.ceil(totalTours / limit),
+                    totalTours: totalTours,
+                    limit: limit
+                }
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
     async createProduct(req,res) {
         try {
             await Tours.create(req.body);
