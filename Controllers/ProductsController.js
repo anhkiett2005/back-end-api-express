@@ -1,7 +1,6 @@
 const Tours = require('../Models/Product');
+const Category = require('../Models/Category');
 const utils = require('../utils/utils');
-const axios = require('axios');
-const validator = require('validator');
 
 class TourController {
     async getAllProducts(req,res) {
@@ -101,12 +100,53 @@ class TourController {
         }
     }
 
+    async getAllProductsByCate(req,res) {
+        try {
+            const {category} = req.query;
+            if(!category) res.status(404).json({message: 'Category is required'})
+            
+            const tours = await Tours.find({category: category});
+
+            res.status(200).json({
+                success: true,
+                message: 'Get tours by category successfully',
+                data: tours,
+                statusCode: 200
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    }
+
     async createProduct(req,res) {
         try {
-            await Tours.create(req.body);
+            const {category, ...tourData} = req.body;
+
+            // Check danh mục có tồn trong collection Category
+            const categoryExist = await Category.findOne({name: category});
+            if(!categoryExist) {
+                return res.status(404).json({
+                    message: 'Category not found'
+                })
+            }
+
+            const slugExist = await Tours.findOne({slug: tourData.slug});
+            if(slugExist) {
+                return res.status(409).json({
+                    message: 'Tour already exists'
+                })
+            }
+
+            // Gán ObjectId của danh mục
+            tourData.category = categoryExist._id;
+
+            const newTour = await Tours.create(tourData);
             res.status(201).json({
                 success: true,
                 message: 'Created tour successfully',
+                data: newTour,
                 statusCode: 201
             })
         } catch (error) {
@@ -120,15 +160,50 @@ class TourController {
         try {
             const {slug} = req.params;
             const normalizedSlug = utils.toSlug(slug);
-            const tour = await Tours.findOneAndUpdate({slug:normalizedSlug},req.body);
+            const tour = await Tours.findOne({slug: normalizedSlug});
             if(!tour) {
                 return res.status(404).json({
-                    message: 'Tour update failed'
+                    message: 'Tour not found',
+                    statusCode: 404
                 })
             }
+
+             // Nếu có thay đổi category, kiểm tra danh mục có tồn tại không
+            if(req.body.category) {
+                const categoryExist = await Category.findOne({name: req.body.category});
+                if(!categoryExist) {
+                    return res.status(404).json({
+                        message: 'Category not found'
+                    })
+                }
+                 // Cập nhật category bằng ObjectId
+                req.body.category = categoryExist._id;
+            }
+
+            // Nếu slug được thay đổi, kiểm tra xem slug mới đã tồn tại hay chưa
+            if(req.body.slug && req.body.slug !== normalizedSlug) {
+                const slugExist = await Tours.findOne({ slug: req.body.slug });
+                if(slugExist) {
+                    return res.status(409).json({
+                        message: 'Tour already exists'
+                    });
+                }
+            }
+
+            // Cập nhật tour
+            const updatedTour = await Tours.findOneAndUpdate({slug: normalizedSlug},req.body,{new: true});
+
+            if (!updatedTour) {
+                return res.status(400).json({
+                    message: 'Tour update failed'
+                });
+            }
+
+
             res.status(200).json({
                 success: true,
                 message: 'Updated tour successfully',
+                data: updatedTour,
                 statusCode: 200
             })
         } catch (error) {

@@ -9,14 +9,6 @@ const productSchema = new Schema(
             type: String,
             required: true
         },
-        type: {
-            type: String,
-            required: [true,'Trường type là bắt buộc!'],
-            enum: {
-                values: ['Tour', 'Sự kiện & Show diễn'],
-                message: 'Giá trị {VALUE} không hợp lệ cho type!'
-            }
-        },
         image: {
             type: String,
             required: true
@@ -25,49 +17,34 @@ const productSchema = new Schema(
             type: Number,
             required: true
         },
-        departureDate: {
+        description: {
             type: String,
-            required: false
+            required: true
+        },
+        departureDate: {
+            type: Date,
+            required: [true,'Trường này là bắt buộc']
         },
         endDate: {
-            type: String,
-            required: function() {
-                return this.type === 'Tour';
-            },
+            type: Date,
+            required: [true,'Trường này là bắt buộc'],
             validate: {
                 validator: function(value) {
-                    // Ensure endDate is later than departureDate (if both exist)
                     if (this.departureDate && value) {
                         const startDate = new Date(this.departureDate);
                         const endDate = new Date(value);
                         return endDate > startDate;
                     }
-                    return true; // Skip validation if departureDate or endDate is missing
+                    return true;
                 },
                 message: props => `Ngày kết thúc (${props.value}) phải lớn hơn ngày khởi hành!`
             }
         },
-        location: {
-            type: String,
-            required: true
-        },
         category: {
-            type: String,
-            required: function () {
-                return this.type === 'Tour' || this.type === 'Sự kiện & Show diễn';
-            },
-            enum:['Hot','Tour gia đình','Tour trong nước','Tour ngoài nước','Tour phiêu lưu và khám phá thiên nhiên'],
-            validate: {
-                validator: function(value) {
-                    if(this.type === 'Tour') {
-                        return ['Hot','Tour gia đình','Tour trong nước','Tour ngoài nước','Tour phiêu lưu và khám phá thiên nhiên'].includes(value)
-                    }else if(this.type === 'Sự kiện & Show diễn') {
-                        return ['Sự kiện âm nhạc','Triển Lãm','Kịch'].includes(value)
-                    }
-                    return true;
-                },
-                message: props => `Giá trị ${props.value} không hợp lệ cho category khi type là ${props.instance.type}!`
-            },
+            type: mongoose.Schema.ObjectId,
+            ref: 'Category',
+            required: true
+            
         },
         slug: {
             type: String,
@@ -80,22 +57,30 @@ const productSchema = new Schema(
             max: 5,
             default: 3
         },
-        duration: {
+        departureLocation: {  // Nơi khởi hành
             type: String,
-            required: function() {
-                return this.type === 'Tour' || this.type === 'Sự kiện & Show diễn';
-            },
-            validate: {
-                validator: function(value) {
-                    if (this.type === 'Tour') {
-                        return /^(\d+ ngày \d+ đêm)$/.test(value);
-                    } else if (this.type === 'Sự kiện & Show diễn') {
-                        return /^(\d+ giờ|\d+ ngày)$/.test(value);
-                    }
-                    return true;
-                },
-                message: props => `Giá trị ${props.value} không hợp lệ cho duration!`
-            }
+            required: [true,'Trường này là bắt buộc']
+        },
+        arrivalLocation: {  // Nơi đến
+            type: String,
+            required: [true,'Trường này là bắt buộc']
+        },
+        services: {  // Dịch vụ
+            type: [String],
+            required: true,
+        },
+        notes: {  // Lưu ý
+            type: [String],
+            required: true,
+        },
+        tourImages: {  // Nhiều ảnh của tour
+            type: [String],  // Mảng các URL của ảnh
+            required: false
+        },
+        tourType: {  // Loại tour (cao cấp, tiêu chuẩn, giá tốt)
+            type: String,
+            enum: ['cao cấp', 'tiêu chuẩn', 'giá tốt'],
+            required: true
         }
     },
     {
