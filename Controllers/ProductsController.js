@@ -44,7 +44,7 @@ class TourController {
         }
     }
 
-    async getOneProductQuery(req,res) {
+    async getOneProductNameQuery(req,res) {
         try {
             let query = req.query.t
             const covertQuery = utils.convertString(query)
@@ -100,17 +100,38 @@ class TourController {
         }
     }
 
-    async getAllProductsByCate(req,res) {
+    async getProductByCate(req,res) {
         try {
             const {category} = req.query;
+            const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
+            const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 6; // nếu không truyền vào mặc định là 6 tour
+            const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
             if(!category) res.status(404).json({message: 'Category is required'})
             
-            const tours = await Tours.find({category: category});
+            const tours = await Tours.find({category: category})
+            .skip(skip)
+            .limit(limit);
+
+            if(!tours) {
+                res.status(404).json({
+                    success: false,
+                    message: 'Tours not found in this category'
+                });
+            }
+
+            // tổng số tài liệu 
+            const totalTours = await Tours.countDocuments();
 
             res.status(200).json({
                 success: true,
                 message: 'Get tours by category successfully',
                 data: tours,
+                pagination : {
+                    currentPage: page,
+                    totalPages: Math.ceil(totalTours / limit),
+                    totalTours: totalTours,
+                    limit: limit
+                },
                 statusCode: 200
             });
         } catch (error) {

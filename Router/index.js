@@ -1,6 +1,6 @@
 const express = require('express'); 
 const router = express.Router();
-const {getAllProducts,getOneProduct,getOneProductQuery,createProduct,putProduct,deleteProduct, getAllProductsPaginationsQuery, getAllProductsByCate} = require('../Controllers/ProductsController');
+const {getAllProducts,getOneProduct,getOneProductNameQuery,createProduct,putProduct,deleteProduct, getAllProductsPaginationsQuery, getProductByCate} = require('../Controllers/ProductsController');
 
 const {getAllCates, getOneCate, createCate, updateCate, deleteCate} = require('../Controllers/CategoryController');
 
@@ -8,12 +8,12 @@ const {registerUser, loginUser} = require('../Controllers/UserController');
 
 router.get("/tours",(req,res) => {
     if(req.query.category) {
-        return getAllProductsByCate(req, res);
+        return getProductByCate(req, res);
     }
     return getAllProducts(req, res);
 });
 router.get("/tour/:slug",getOneProduct);
-router.get("/tour",getOneProductQuery);
+router.get("/tour",getOneProductNameQuery);
 router.get("/tours/list",getAllProductsPaginationsQuery);
 router.post("/create",createProduct);
 router.put("/update/:slug",putProduct);

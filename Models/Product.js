@@ -9,6 +9,11 @@ const productSchema = new Schema(
             type: String,
             required: true
         },
+        tourCode: {
+            type: String,
+            required: [true,'Trường này là bắt buộc'],
+            trim: true
+        },
         image: {
             type: String,
             required: true
@@ -56,6 +61,11 @@ const productSchema = new Schema(
             min: 1,
             max: 5,
             default: 3
+        },
+        ratingCount: {
+            type: Number,
+            default: 0,
+            required: true,
         },
         departureLocation: {  // Nơi khởi hành
             type: String,
