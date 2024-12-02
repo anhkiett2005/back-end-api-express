@@ -5,12 +5,29 @@ const utils = require('../utils/utils');
 class TourController {
     async getAllProducts(req,res) {
         try {
-            const tour = await Tours.find();
+            const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
+            const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 3; // nếu không truyền vào mặc định là 6 tour
+            const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
+            const tour = await Tours.find()
+            .skip(skip)
+            .limit(limit);
+
+            if(!tour) return res.status(404).json({success: false, message: 'Tour not found'});
+
+            // tổng số tài liệu 
+            const totalTours = await Tours.countDocuments();
+
 
             res.status(200).json({
                 success: true,
                 message: 'Get all tours successfully',
                 data: tour,
+                pagination : {
+                    currentPage: page,
+                    totalPages: Math.ceil(totalTours / limit),
+                    totalTours: totalTours,
+                    limit: limit
+                },
                 statusCode: 200
             })
         } catch (error) {
@@ -43,6 +60,38 @@ class TourController {
             })
         }
     }
+
+    async getOneProductById(req, res) {
+        try {
+            const { id } = req.params; // Lấy id từ params
+    
+            // Tìm tour theo _id, dùng phương thức findById để tối ưu tìm theo ObjectId
+            const tour = await Tours.findById(id);
+    
+            if (!tour) {
+                // Nếu không tìm thấy tour, trả về lỗi 404
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tour not found'
+                });
+            }
+    
+            // Nếu tìm thấy tour, trả về dữ liệu tour
+            res.status(200).json({
+                success: true,
+                message: 'Get tour successfully',
+                data: tour,
+                statusCode: 200
+            });
+        } catch (error) {
+            // Nếu có lỗi, trả về lỗi 500 với thông báo lỗi
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+    
 
     async getOneProductNameQuery(req,res) {
         try {
@@ -77,6 +126,8 @@ class TourController {
             const tours = await Tours.find()
             .skip(skip) // Bỏ qua số tài liệu theo phân trang
             .limit(limit); // Giới hạn số tài liệu trả về
+
+            if(!tours) return res.status(404).json({success: false, message: 'Tour not found'});
             
             // tổng số tài liệu 
             const totalTours = await Tours.countDocuments();
@@ -106,6 +157,7 @@ class TourController {
             const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
             const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 6; // nếu không truyền vào mặc định là 6 tour
             const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
+            
             if(!category) res.status(404).json({message: 'Category is required'})
             
             const tours = await Tours.find({category: category})
@@ -115,7 +167,7 @@ class TourController {
             if(!tours) {
                 res.status(404).json({
                     success: false,
-                    message: 'Tours not found in this category'
+                    message: 'Tours not found'
                 });
             }
 
@@ -163,11 +215,11 @@ class TourController {
             // Gán ObjectId của danh mục
             tourData.category = categoryExist._id;
 
-            const newTour = await Tours.create(tourData);
+            await Tours.create(tourData);
             res.status(201).json({
                 success: true,
                 message: 'Created tour successfully',
-                data: newTour,
+                // data: newTour,
                 statusCode: 201
             })
         } catch (error) {
