@@ -92,6 +92,97 @@ class UserController {
             })
         }
     }
+
+
+    async getUser(req,res) {
+        try {
+            const users = await User.find();
+
+            if(!users) return res.status(404).json({success: false, message: 'User not found'});
+
+            res.status(200).json({success: true, users: users,statusCode: 200});
+        } catch (error) {
+            res.status(500).json({
+                message: 'Lỗi server',
+                error: error.message
+            });
+        }
+    }
+
+    async getOneUser(req,res) {
+        try {
+            const id = req.params.id;
+
+            const user = await User.findById(id);
+
+            if(!user) return res.status(404).json({success: false, message: 'User not found'});
+
+            const userResponse = {
+                username: user.username,
+                email: user.email,
+                phone: user.phone,
+                isActive: user.isActive,
+                role: user.role
+            }
+
+            res.status(200).json({
+                success: true,
+                message: 'Get User successfully',
+                user: userResponse,
+                statusCode: 200
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Lỗi server',
+                error: error.message
+            });
+        }
+    }
+
+    async updateUser(req,res) {
+        try {
+            const id = req.params.id;
+
+            const user = await User.findByIdAndUpdate(id, req.body, {new: true});
+
+            if(!user) return res.status(404).json({success: false, message: 'User updated failed'});
+
+            res.status(200).json({
+                success: true,
+                message: 'Update User successfully',
+                user: user,
+                statusCode: 200
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Lỗi server',
+                error: error.message
+            });
+        }
+    }
+
+    async deleteUser(req,res) {
+        try {
+            const id = req.params.id;
+
+            const user = await User.findById(id);
+
+            if(!user) return res.status(404).json({success: false, message: 'User not found or already deleted'});
+
+            await User.deleteOne({_id: id});
+
+            res.status(200).json({
+                success: true,
+                message: 'Delete User successfully',
+                statusCode: 200
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Lỗi server',
+                error: error.message
+            });
+        }
+    }
 }
 
 module.exports = new UserController();

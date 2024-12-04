@@ -4,7 +4,7 @@ const {getAllProducts,getOneProduct,getOneProductNameQuery,createProduct,putProd
 
 const {getAllCates, getOneCate, createCate, updateCate, deleteCate} = require('../Controllers/CategoryController');
 
-const {registerUser, loginUser} = require('../Controllers/UserController');
+const {registerUser, loginUser, getUser, getOneUser, updateUser, deleteUser} = require('../Controllers/UserController');
 
 router.get("/tours",(req,res) => {
     if(req.query.category) {
@@ -31,4 +31,8 @@ router.delete("/category/delete/:id",deleteCate);
 // Route user
 router.post("/user/register",registerUser);
 router.post("/user/login",loginUser);
+router.get("/users/list",getUser);
+router.get("/user/:id",getOneUser);
+router.put("/user/update/:id",updateUser);
+router.delete("/user/delete/:id",deleteUser);
 module.exports = router;
