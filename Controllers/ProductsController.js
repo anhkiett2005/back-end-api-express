@@ -5,12 +5,12 @@ const utils = require('../utils/utils');
 class TourController {
     async getAllProducts(req,res) {
         try {
-            const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
-            const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 3; // nếu không truyền vào mặc định là 6 tour
-            const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
+            // const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page,10) : 1; // nếu không truyền vào mặc định là trang 1
+            // const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit,10) : 3; // nếu không truyền vào mặc định là 6 tour
+            // const skip = (page - 1) * limit; // Tính skip dựa trên page và limit
             const tour = await Tours.find()
-            .skip(skip)
-            .limit(limit);
+            // .skip(skip)
+            // .limit(limit);
 
             if(!tour) return res.status(404).json({success: false, message: 'Tour not found'});
 
@@ -22,12 +22,12 @@ class TourController {
                 success: true,
                 message: 'Get all tours successfully',
                 data: tour,
-                pagination : {
-                    currentPage: page,
-                    totalPages: Math.ceil(totalTours / limit),
-                    totalTours: totalTours,
-                    limit: limit
-                },
+                // pagination : {
+                //     currentPage: page,
+                //     totalPages: Math.ceil(totalTours / limit),
+                //     totalTours: totalTours,
+                //     limit: limit
+                // },
                 statusCode: 200
             })
         } catch (error) {
@@ -40,7 +40,11 @@ class TourController {
         try {
             const {slug} = req.params;
             const normalizedSlug = utils.toSlug(slug);
-            const tour = await Tours.findOne({slug:normalizedSlug});
+            // Tìm kiếm tour theo slug và populate để lấy thông tin danh mục
+            const tour = await Tours.findOne({ slug: normalizedSlug }).populate({
+                path: 'category', // Trường liên kết với collection danh mục
+                select: 'name' // Chỉ lấy trường 'name' từ bảng danh mục
+            });
             if(!tour) {
                 return res.status(404).json({
                     message: 'Tour not found'
@@ -276,7 +280,7 @@ class TourController {
             res.status(200).json({
                 success: true,
                 message: 'Updated tour successfully',
-                data: updatedTour,
+                tourUpdated: updatedTour,
                 statusCode: 200
             })
         } catch (error) {
@@ -299,6 +303,7 @@ class TourController {
             // Nếu tồn tại, xóa tour
             await Tours.deleteOne({slug:slug});
             res.status(200).json({
+                success: true,
                 message: 'Deleted tour successfully',
             })
         } catch (error) {
